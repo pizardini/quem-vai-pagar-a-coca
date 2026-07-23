@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   Alert,
@@ -37,12 +37,9 @@ import { CSS } from "@dnd-kit/utilities";
 
 import AddParticipantDialog from "@/components/AddParticipantDialog";
 import Layout from "@/components/Layout";
-import { useStore, ExportedData, Payer } from "@/store/useStore";
+import { useStore, Payer } from "@/store/useStore";
 import { FixedParticipant } from "@/types/FixedParticipant";
 import { History } from "@/types/History";
-import { SporadicParticipant } from "@/types/SporadicParticipant";
-
-type ImportStatus = "idle" | "success" | "error";
 
 interface SortableFixedItemProps {
   participant: FixedParticipant;
@@ -50,93 +47,11 @@ interface SortableFixedItemProps {
   onRemove: (id: string) => void;
 }
 
-const resultLabels: Record<History["result"], string> = {
-  paid: "Pagou",
-  "not-paid": "Nao pagou",
-  "no-coke": "Nao houve Coca",
-};
-
-const participantTypeLabels: Record<History["participantType"], string> = {
-  fixed: "Fixo",
-  sporadic: "Esporadico",
-  none: "Sem participante",
-};
-
 const createNoParticipantPayer = (): Payer => ({
   id: null,
   name: "Nenhum participante cadastrado",
   type: "none",
 });
-
-const isObject = (value: unknown): value is Record<string, unknown> => (
-  typeof value === "object" && value !== null && !Array.isArray(value)
-);
-
-const isFixedParticipant = (value: unknown): value is FixedParticipant => {
-  if (!isObject(value)) return false;
-
-  return (
-    typeof value.id === "string" &&
-    typeof value.name === "string"
-  );
-};
-
-const isSporadicParticipant = (
-  value: unknown
-): value is SporadicParticipant => {
-  if (!isObject(value)) return false;
-
-  return (
-    typeof value.id === "string" &&
-    typeof value.name === "string" &&
-    typeof value.participations === "number" &&
-    typeof value.pendingPayment === "boolean" &&
-    (
-      typeof value.pendingSince === "number" ||
-      value.pendingSince === null
-    )
-  );
-};
-
-const isHistory = (value: unknown): value is History => {
-  if (!isObject(value)) return false;
-
-  const validParticipantType = (
-    value.participantType === "fixed" ||
-    value.participantType === "sporadic" ||
-    value.participantType === "none"
-  );
-  const validResult = (
-    value.result === "paid" ||
-    value.result === "not-paid" ||
-    value.result === "no-coke"
-  );
-
-  return (
-    typeof value.id === "string" &&
-    typeof value.date === "string" &&
-    (
-      typeof value.participantId === "string" ||
-      value.participantId === null
-    ) &&
-    typeof value.participantName === "string" &&
-    validParticipantType &&
-    validResult
-  );
-};
-
-const isExportedData = (value: unknown): value is ExportedData => {
-  if (!isObject(value)) return false;
-
-  return (
-    Array.isArray(value.fixedParticipants) &&
-    Array.isArray(value.sporadicParticipants) &&
-    Array.isArray(value.history) &&
-    value.fixedParticipants.every(isFixedParticipant) &&
-    value.sporadicParticipants.every(isSporadicParticipant) &&
-    value.history.every(isHistory)
-  );
-};
 
 function SortableFixedItem({
   participant,
@@ -196,13 +111,9 @@ export default function HomePage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedSporadicIds, setSelectedSporadicIds] = useState<string[]>([]);
   const [confirmedPayer, setConfirmedPayer] = useState<Payer | null>(null);
-  const [importStatus, setImportStatus] = useState<ImportStatus>("idle");
-  const [importMessage, setImportMessage] = useState("");
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const fixedParticipants = useStore((state) => state.fixedParticipants);
   const sporadicParticipants = useStore((state) => state.sporadicParticipants);
-  const history = useStore((state) => state.history);
   const removeFixedParticipant = useStore((state) => state.removeFixedParticipant);
   const removeSporadicParticipant = useStore(
     (state) => state.removeSporadicParticipant
@@ -214,8 +125,6 @@ export default function HomePage() {
     (state) => state.registerMeetingPresence
   );
   const finishMeeting = useStore((state) => state.finishMeeting);
-  const exportData = useStore((state) => state.exportData);
-  const importData = useStore((state) => state.importData);
 
   const sensors = useSensors(useSensor(PointerSensor));
   const fixedLimit = Math.max(fixedParticipants.length, 1);
@@ -283,57 +192,9 @@ export default function HomePage() {
     );
   };
 
-  const handleExport = () => {
-    const data = JSON.stringify(exportData(), null, 2);
-    const blob = new Blob([data], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-
-    link.href = url;
-    link.download = "quem-vai-pagar-a-coca.json";
-    link.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const handleImportFile = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-
-    if (!file) return;
-
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      try {
-        const parsedData: unknown = JSON.parse(String(reader.result));
-
-        if (!isExportedData(parsedData)) {
-          throw new Error("Formato invalido.");
-        }
-
-        importData(parsedData);
-        setSelectedSporadicIds([]);
-        setConfirmedPayer(null);
-        setImportStatus("success");
-        setImportMessage("Dados importados com sucesso.");
-      } catch {
-        setImportStatus("error");
-        setImportMessage("Nao foi possivel importar este arquivo JSON.");
-      }
-    };
-
-    reader.readAsText(file);
-  };
-
   return (
     <Layout>
       <Stack spacing={3}>
-        {importStatus !== "idle" && (
-          <Alert severity={importStatus}>
-            {importMessage}
-          </Alert>
-        )}
-
         <Card>
           <CardContent>
             <Stack spacing={2}>
@@ -565,84 +426,6 @@ export default function HomePage() {
           </Card>
         </Stack>
 
-        <Card>
-          <CardContent>
-            <Stack spacing={2}>
-              <Box
-                sx={{
-                  alignItems: "center",
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: 2,
-                  justifyContent: "space-between",
-                }}
-              >
-                <Typography variant="h6">
-                  Dados
-                </Typography>
-
-                <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
-                  <Button variant="outlined" onClick={handleExport}>
-                    Exportar JSON
-                  </Button>
-
-                  <Button
-                    variant="outlined"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    Importar JSON
-                  </Button>
-                </Stack>
-              </Box>
-
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="application/json"
-                hidden
-                onChange={handleImportFile}
-              />
-            </Stack>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent>
-            <Stack spacing={2}>
-              <Typography variant="h6">
-                Historico
-              </Typography>
-
-              <Divider />
-
-              {history.length === 0 ? (
-                <Typography color="text.secondary">
-                  Nenhum encontro registrado.
-                </Typography>
-              ) : (
-                <List disablePadding>
-                  {history.map((item) => (
-                    <ListItem
-                      key={item.id}
-                      sx={{
-                        borderBottom: 1,
-                        borderColor: "divider",
-                        px: 0,
-                      }}
-                    >
-                      <ListItemText
-                        primary={`${item.participantName} - ${resultLabels[item.result]}`}
-                        secondary={`${new Date(item.date).toLocaleString("pt-BR")} - ${
-                          participantTypeLabels[item.participantType]
-                        }`}
-                      />
-                    </ListItem>
-                  ))}
-                </List>
-              )}
-            </Stack>
-          </CardContent>
-        </Card>
       </Stack>
 
       <AddParticipantDialog

@@ -39,6 +39,14 @@ pendente primeiro. Depois de pagar, o contador volta para zero.
 
 Todos os resultados geram historico com data, participante, tipo e resultado.
 
+## Navegacao
+
+O app possui um menu lateral com tres paginas:
+
+- `Inicio`: fluxo do encontro, cadastro, exclusao e fila de participantes.
+- `Dados`: exportacao e importacao completa em JSON.
+- `Historico`: lista de encontros registrados.
+
 ## Dados
 
 O estado global fica em `store/useStore.ts` e e persistido automaticamente no

@@ -1,42 +1,192 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
+import GroupsRoundedIcon from "@mui/icons-material/GroupsRounded";
+import HistoryRoundedIcon from "@mui/icons-material/HistoryRounded";
+import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
+
+import Box from "@mui/material/Box";
+import Chip from "@mui/material/Chip";
 import Container from "@mui/material/Container";
+import Divider from "@mui/material/Divider";
+import List from "@mui/material/List";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
 import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+
+import Logo from "./Logo";
+
+import { useStore } from "@/store/useStore";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
+const navigationItems = [
+  {
+    href: "/",
+    label: "Dashboard",
+    icon: <DashboardRoundedIcon />,
+  },
+  {
+    href: "/historico",
+    label: "Histórico",
+    icon: <HistoryRoundedIcon />,
+  },
+  {
+    href: "/dados",
+    label: "Dados",
+    icon: <SaveRoundedIcon />,
+  },
+];
+
 export default function Layout({ children }: LayoutProps) {
+  const pathname = usePathname();
+
+  const fixedParticipants = useStore((state) => state.fixedParticipants);
+  const sporadicParticipants = useStore((state) => state.sporadicParticipants);
+
   return (
     <Container
-      maxWidth="lg"
+      maxWidth="xl"
       sx={{
-        mt: { xs: 2, md: 4 },
-        mb: 4,
+        py: 4,
       }}
     >
-      <Typography
-        variant="h3"
-        align="center"
-        gutterBottom
-        sx={{ fontSize: { xs: "2rem", md: "3rem" } }}
-      >
-        Quem vai pagar a Coca?
-      </Typography>
-
-      <Paper
-        elevation={0}
+      <Box
         sx={{
-          p: { xs: 2, md: 4 },
-          border: 1,
-          borderColor: "divider",
-          borderRadius: 1,
+          display: "grid",
+          gap: 3,
+          gridTemplateColumns: {
+            xs: "1fr",
+            md: "280px 1fr",
+          },
+          alignItems: "start",
         }}
       >
-        {children}
-      </Paper>
+        <Paper
+          elevation={2}
+          sx={{
+            borderRadius: 3,
+            overflow: "hidden",
+            position: {
+              md: "sticky",
+            },
+            top: 24,
+          }}
+        >
+          <Box
+            sx={{
+              p: 3,
+            }}
+          >
+            <Logo />
+          </Box>
+
+          <Divider />
+
+          <List
+            sx={{
+              p: 2,
+            }}
+          >
+            {navigationItems.map((item) => {
+              const selected = pathname === item.href;
+
+              return (
+                <ListItemButton
+                  key={item.href}
+                  component={Link}
+                  href={item.href}
+                  selected={selected}
+                  sx={{
+                    mb: 1,
+                    borderRadius: 2,
+
+                    "&.Mui-selected": {
+                      bgcolor: "rgba(198,40,40,.08)",
+                    },
+
+                    "&.Mui-selected:hover": {
+                      bgcolor: "rgba(198,40,40,.14)",
+                    },
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 42,
+                      color: selected ? "primary.main" : "text.secondary",
+                    }}
+                  >
+                    {item.icon}
+                  </ListItemIcon>
+
+                  <ListItemText
+                    primary={
+                      <Typography
+                        sx={{
+                          fontWeight: selected ? 700 : 500,
+                        }}
+                      >
+                        {item.label}
+                      </Typography>
+                    }
+                  />
+                </ListItemButton>
+              );
+            })}
+          </List>
+
+          <Divider />
+
+          <Stack
+            spacing={2}
+            sx={{
+              p: 3,
+            }}
+          >
+            <Typography
+              variant="subtitle2"
+              color="text.secondary"
+            >
+              Participantes
+            </Typography>
+
+            <Chip
+              icon={<GroupsRoundedIcon />}
+              color="primary"
+              variant="outlined"
+              label={`${fixedParticipants.length} participantes fixos`}
+            />
+
+            <Chip
+              color="secondary"
+              variant="outlined"
+              label={`${sporadicParticipants.length} participantes esporádicos`}
+            />
+          </Stack>
+        </Paper>
+
+        <Paper
+          elevation={2}
+          sx={{
+            borderRadius: 3,
+            p: {
+              xs: 2,
+              md: 4,
+            },
+            minHeight: "80vh",
+          }}
+        >
+          {children}
+        </Paper>
+      </Box>
     </Container>
   );
 }
