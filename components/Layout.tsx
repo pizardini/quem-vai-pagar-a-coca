@@ -2,15 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import GroupsRoundedIcon from "@mui/icons-material/GroupsRounded";
 import HistoryRoundedIcon from "@mui/icons-material/HistoryRounded";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
+import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 
 import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
-import Container from "@mui/material/Container";
+// import Container from "@mui/material/Container";
 import Divider from "@mui/material/Divider";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -19,8 +21,12 @@ import ListItemText from "@mui/material/ListItemText";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import AppBar from "@mui/material/AppBar";
+import IconButton from "@mui/material/IconButton";
+import Toolbar from "@mui/material/Toolbar";
 
 import Logo from "./Logo";
+import MobileDrawer from "./MobileDrawer";
 
 import { useStore } from "@/store/useStore";
 
@@ -56,28 +62,79 @@ export default function Layout({ children }: LayoutProps) {
 
   const fixedParticipants = useStore((state) => state.fixedParticipants);
   const sporadicParticipants = useStore((state) => state.sporadicParticipants);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <Container
-      maxWidth="xl"
+    <Box
       sx={{
-        py: 4,
+        minHeight: "100vh",
+        bgcolor: "background.default",
       }}
     >
-      <Box
+      <MobileDrawer
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+      />
+      <AppBar
+        position="sticky"
+        elevation={1}
         sx={{
-          display: "grid",
-          gap: 3,
-          gridTemplateColumns: {
-            xs: "1fr",
-            md: "280px 1fr",
-          },
-          alignItems: "start",
+            display:{
+                xs:"block",
+                md:"none",
+            }
         }}
       >
+        <Toolbar>
+
+            <IconButton
+                edge="start"
+                color="inherit"
+                onClick={() => setMobileOpen(true)}
+            >
+                <MenuRoundedIcon/>
+            </IconButton>
+
+            <Box
+                sx={{
+                    ml:2,
+                }}
+            >
+                <Logo/>
+            </Box>
+
+        </Toolbar>
+        </AppBar>
+
+        <Box
+            sx={{
+                display:"grid",
+
+                gap:{
+                    xs:2,
+                    md:3,
+                },
+
+                p:{
+                    xs:2,
+                    md:4,
+                },
+
+                gridTemplateColumns:{
+                    xs:"1fr",
+                    md:"280px 1fr",
+                },
+
+                alignItems:"start",
+            }}
+        >
         <Paper
           elevation={2}
           sx={{
+            display:{
+                xs:"none",
+                md:"block",
+            },
             borderRadius: 3,
             overflow: "hidden",
             position: {
@@ -191,12 +248,15 @@ export default function Layout({ children }: LayoutProps) {
               xs: 2,
               md: 4,
             },
-            minHeight: "80vh",
+            minHeight:{
+                xs:"calc(100vh - 90px)",
+                md:"80vh",
+            },
           }}
         >
           {children}
         </Paper>
       </Box>
-    </Container>
+    </Box>
   );
 }
