@@ -96,7 +96,7 @@ export default function AddParticipantDialog({
             </MenuItem>
 
             <MenuItem value="sporadic">
-              Participante esporadico
+              Participante esporádico
             </MenuItem>
           </Select>
         </FormControl>

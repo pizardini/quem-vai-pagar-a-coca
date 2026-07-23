@@ -22,7 +22,7 @@ const resultLabels: Record<History["result"], string> = {
 
 const participantTypeLabels: Record<History["participantType"], string> = {
   fixed: "Fixo",
-  sporadic: "Esporadico",
+  sporadic: "Esporádico",
   none: "Sem participante",
 };
 

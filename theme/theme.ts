@@ -1,23 +1,61 @@
 "use client";
 
 import { createTheme } from "@mui/material/styles";
+import { PaletteMode } from "@mui/material";
 
-const theme = createTheme({
-  palette: {
-    mode: "light",
-    primary: {
-      main: "#1565c0",
-    },
-    secondary: {
-      main: "#c62828",
-    },
-    background: {
-      default: "#f6f7f9",
-    },
-  },
-  shape: {
-    borderRadius: 8,
-  },
-});
+export function createAppTheme(mode: PaletteMode) {
+  return createTheme({
+    palette: {
+      mode,
 
-export default theme;
+      primary: {
+        main: "#C62828",
+      },
+
+      secondary: {
+        main: "#1565C0",
+      },
+
+      background: {
+        default: mode === "light" ? "#f5f5f5" : "#121212",
+        paper: mode === "light" ? "#ffffff" : "#1E1E1E",
+      },
+
+      text: {
+        primary: mode === "light" ? "#212121" : "#ffffff",
+        secondary: mode === "light" ? "#616161" : "#BDBDBD",
+      },
+    },
+
+    shape: {
+      borderRadius: 12,
+    },
+
+    components: {
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            borderRadius: 16,
+          },
+        },
+      },
+
+      MuiCard: {
+        styleOverrides: {
+          root: {
+            borderRadius: 16,
+          },
+        },
+      },
+
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            borderRadius: 10,
+            textTransform: "none",
+          },
+        },
+      },
+    },
+  });
+}

@@ -49,6 +49,11 @@ const navigationItems = [
 export default function Layout({ children }: LayoutProps) {
   const pathname = usePathname();
 
+    const currentPath =
+    pathname === "/"
+      ? "/"
+      : pathname.replace(/\/+$/, "");
+
   const fixedParticipants = useStore((state) => state.fixedParticipants);
   const sporadicParticipants = useStore((state) => state.sporadicParticipants);
 
@@ -84,6 +89,8 @@ export default function Layout({ children }: LayoutProps) {
           <Box
             sx={{
               p: 3,
+              py: 4,
+              bgcolor: "grey.50",
             }}
           >
             <Logo />
@@ -97,7 +104,7 @@ export default function Layout({ children }: LayoutProps) {
             }}
           >
             {navigationItems.map((item) => {
-              const selected = pathname === item.href;
+              const selected = currentPath === item.href;
 
               return (
                 <ListItemButton
@@ -110,7 +117,9 @@ export default function Layout({ children }: LayoutProps) {
                     borderRadius: 2,
 
                     "&.Mui-selected": {
-                      bgcolor: "rgba(198,40,40,.08)",
+                        bgcolor: "primary.50",
+                        color: "primary.main",
+                        transition: "all .2s",
                     },
 
                     "&.Mui-selected:hover": {
@@ -122,6 +131,7 @@ export default function Layout({ children }: LayoutProps) {
                     sx={{
                       minWidth: 42,
                       color: selected ? "primary.main" : "text.secondary",
+                      transition: "color .2s",
                     }}
                   >
                     {item.icon}

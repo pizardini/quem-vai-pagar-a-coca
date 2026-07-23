@@ -165,14 +165,6 @@ export default function HomePage() {
     setSelectedSporadicIds([]);
   };
 
-  const handleNoCoke = () => {
-    const payer = confirmedPayer ?? registerMeetingPresence(selectedSporadicIds);
-
-    finishMeeting(payer, "no-coke");
-    setConfirmedPayer(null);
-    setSelectedSporadicIds([]);
-  };
-
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -230,7 +222,7 @@ export default function HomePage() {
                   {confirmedPayer ? (
                     <Chip label="Presencas confirmadas" />
                   ) : (
-                    <Chip label="Confirme as presencas do encontro" />
+                    <Chip label="Confirme as presenças do encontro" />
                   )}
                 </Stack>
               </Box>
@@ -238,12 +230,12 @@ export default function HomePage() {
               <Divider />
 
               <Typography variant="h6">
-                Participantes esporadicos presentes
+                Participantes esporádicos presentes
               </Typography>
 
               {sporadicParticipants.length === 0 ? (
                 <Typography color="text.secondary">
-                  Nenhum participante esporadico cadastrado.
+                  Nenhum participante esporádico cadastrado.
                 </Typography>
               ) : (
                 <Stack spacing={1}>
@@ -266,7 +258,7 @@ export default function HomePage() {
 
               {pendingPresentCount > 0 && !confirmedPayer && (
                 <Alert severity="info">
-                  Ha esporadico pendente presente; ele tera prioridade ao
+                  Há esporádico pendente presente; ele terá prioridade ao
                   confirmar.
                 </Alert>
               )}
@@ -276,7 +268,7 @@ export default function HomePage() {
                   variant="contained"
                   onClick={handleConfirmPresence}
                 >
-                  Confirmar presencas
+                  Confirmar presenças
                 </Button>
 
                 <Button
@@ -297,12 +289,6 @@ export default function HomePage() {
                   Nao pagou
                 </Button>
 
-                <Button
-                  variant="outlined"
-                  onClick={handleNoCoke}
-                >
-                  Nao houve Coca hoje
-                </Button>
               </Stack>
             </Stack>
           </CardContent>
@@ -378,14 +364,14 @@ export default function HomePage() {
                 </Typography>
 
                 <Typography color="text.secondary">
-                  Limite para pagar: {fixedLimit} participacoes.
+                  Limite para pagar: {fixedLimit} participaçoes.
                 </Typography>
 
                 <Divider />
 
                 {sporadicParticipants.length === 0 ? (
                   <Typography color="text.secondary">
-                    Nenhum participante esporadico cadastrado.
+                    Nenhum participante esporádico cadastrado.
                   </Typography>
                 ) : (
                   <List disablePadding>

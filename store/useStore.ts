@@ -10,6 +10,7 @@ import { History } from "@/types/History";
 
 type ParticipantKind = "fixed" | "sporadic" | "none";
 type MeetingResult = "paid" | "not-paid" | "no-coke";
+type ThemeMode = "light" | "dark";
 
 export interface Payer {
   id: string | null;
@@ -24,6 +25,7 @@ export interface ExportedData {
 }
 
 interface Store {
+  themeMode: ThemeMode;
   fixedParticipants: FixedParticipant[];
   sporadicParticipants: SporadicParticipant[];
   history: History[];
@@ -40,6 +42,7 @@ interface Store {
   exportData: () => ExportedData;
   importData: (data: ExportedData) => void;
   clearAll: () => void;
+  toggleTheme: () => void;
 }
 
 const createEmptyPayer = (): Payer => ({
@@ -91,6 +94,7 @@ const getLimit = (fixedParticipants: FixedParticipant[]) => (
 export const useStore = create<Store>()(
   persist(
     (set, get) => ({
+      themeMode: "light",
       fixedParticipants: [],
       sporadicParticipants: [],
       history: [],
@@ -247,6 +251,14 @@ export const useStore = create<Store>()(
           history: [],
         });
       },
+      
+      toggleTheme: () => {
+      set((state) => ({
+        themeMode: state.themeMode === "light"
+          ? "dark"
+          : "light",
+      }));
+    },
     }),
 
     {
