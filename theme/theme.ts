@@ -3,31 +3,21 @@
 import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
-
-    palette: {
-
-        mode: "light",
-
-        primary: {
-
-            main: "#1976d2"
-
-        },
-
-        secondary: {
-
-            main: "#ef6c00"
-
-        }
-
+  palette: {
+    mode: "light",
+    primary: {
+      main: "#1565c0",
     },
-
-    shape: {
-
-        borderRadius: 10
-
-    }
-
+    secondary: {
+      main: "#c62828",
+    },
+    background: {
+      default: "#f6f7f9",
+    },
+  },
+  shape: {
+    borderRadius: 8,
+  },
 });
 
 export default theme;

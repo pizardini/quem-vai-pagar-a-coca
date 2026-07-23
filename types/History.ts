@@ -1,13 +1,13 @@
 export interface History {
+  id: string;
 
-    id: string;
+  date: string;
 
-    date: string;
+  participantId: string | null;
 
-    participantName: string;
+  participantName: string;
 
-    participantType: "fixed" | "sporadic";
+  participantType: "fixed" | "sporadic" | "none";
 
-    result: "paid" | "not-paid";
-
+  result: "paid" | "not-paid" | "no-coke";
 }

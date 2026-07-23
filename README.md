@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Quem Vai Pagar a Coca?
 
-## Getting Started
+Aplicacao web simples para controlar quem deve pagar a Coca-Cola em encontros
+de um grupo de amigos.
 
-First, run the development server:
+## Stack
+
+- Next.js com App Router
+- React
+- TypeScript
+- Material UI
+- Zustand com persist middleware
+- LocalStorage
+- dnd-kit para reordenar a fila fixa
+
+Nao existe backend, banco de dados, API Route ou IndexedDB.
+
+## Regras do aplicativo
+
+Participantes fixos formam uma fila. O primeiro da fila e o proximo a pagar.
+Quando ele paga, vai para o fim da fila. Se nao paga, a fila nao muda.
+
+Participantes esporadicos nao entram na fila fixa. Cada presenca confirmada
+soma uma participacao. O limite para ficar pendente e igual ao numero atual de
+participantes fixos. Ao atingir esse limite, o participante fica pendente para
+pagar.
+
+Quando houver um esporadico pendente presente no encontro, ele tem prioridade
+sobre a fila fixa. Se mais de um estiver pendente e presente, paga quem ficou
+pendente primeiro. Depois de pagar, o contador volta para zero.
+
+## Fluxo principal
+
+1. Cadastre participantes fixos e esporadicos.
+2. Reordene a fila fixa por drag-and-drop quando necessario.
+3. Marque quais esporadicos estiveram presentes no encontro.
+4. Confirme as presencas para atualizar contadores e definir o pagador.
+5. Registre o resultado: pagou, nao pagou ou nao houve Coca.
+
+Todos os resultados geram historico com data, participante, tipo e resultado.
+
+## Dados
+
+O estado global fica em `store/useStore.ts` e e persistido automaticamente no
+LocalStorage pela chave `quem-vai-pagar-a-coca`.
+
+A tela permite exportar um JSON com todos os dados e importar novamente um JSON
+exportado anteriormente, restaurando participantes fixos, participantes
+esporadicos e historico.
+
+## Estrutura
+
+- `app/`: rotas, layout raiz, providers e tela principal.
+- `components/`: componentes reutilizaveis pequenos.
+- `store/`: Zustand Store unica e regras de negocio.
+- `theme/`: tema Material UI.
+- `types/`: interfaces compartilhadas.
+
+## Desenvolvimento
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Validacao
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run lint
+npm run build
+```
